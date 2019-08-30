@@ -1,1 +1,1 @@
-./data/ibm_data/
+./data/ibm_data/*
