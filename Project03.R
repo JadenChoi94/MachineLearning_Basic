@@ -1,5 +1,8 @@
 ### Project
 
+setwd('D:/Heechul/R_Project/Project03')
+getwd()
+
 # 패키지 준비
 library(dplyr)
 library(stringr)
@@ -31,7 +34,7 @@ library(ggplot2)
 
 
 # 데이터 불러오기
-data_raw <- read.csv('data/sales.csv')
+data_raw <- read.csv('Data/sales.csv')
 
 head(data_raw)
 length(data_raw)
@@ -43,7 +46,6 @@ data <- data_raw %>%
 data <- data[,-c(1,2)]
 head(data)
 str(data)
-data
 
 # ITEM_CNT	상품품목수
 # QTY	판매량
@@ -67,7 +69,7 @@ cor(data)
 # 산점도 그려보기
 pairs(data)
 
-# Linear Regression Model 유의성 검사
+# Linear Regression Model
 (fit1 <- lm(QTY~., data = data))
 summary(fit1)
 anova(fit1)
@@ -96,7 +98,7 @@ step(fit1, direction = 'both')
 # 4. All possible regression
 library(leaps)
 subsets1 <- regsubsets(QTY~., data = data,
-                       method = 'seqrep', nbest = 6) 
+                       method = 'seqrep', nbest = 6)  #삭제하는것을 반복
 plot(subsets1)
 
 subsets2 <- regsubsets(QTY~., data = data,
@@ -121,7 +123,7 @@ par(mfrow = c(1, 1))
 qqnorm(fit3$residuals) ; qqline(fit3$residuals)
 shapiro.test(fit3$residuals)
 
-# 유의수준 0.05보다 커서 정규성을 따른다.
+# 유의수준 0.05보다 작아 정규성을 따른다
 
 # 2. 등분산성 (homoscedasticity) 
 # 3. 선형성 (linearity) 
@@ -130,16 +132,16 @@ gvmodel <- gvlma(fit3)
 summary(gvmodel)
 
 # Global Stat, Heteroscedasticity 선형성, 등분산성 둘다 만족하지 못함
-# 비선형??
+
 
 # 4. 독립성 (indepandence) 
 library(car)
 durbinWatsonTest(fit3)
 
-# 유의수준 0.05보다 작아 독립성을 만족하지 못함
+# # 유의수준 0.05보다 작아 독립성을 만족하지 못함
 
 # 결과적으로 fit3모델은 정규성을 따르고
-# Global Stat(선형성), Heteroscedasticity (등분상성) 만족하지 못함
+# Global Stat(선형성), Heteroscedasticity (등분산성) 만족하지 못함
 # 독립성 만족하지 못함
 
 ## HOLIDAY, SALEDAY, RAINDAY 변수를 뺀 모델을 fit4로 지정
@@ -173,10 +175,10 @@ summary(gvmodel)
 library(car)
 durbinWatsonTest(fit4)
 
-# 유의수준 0.05보다 작아 독립성을 만족하지 못함
+# # 유의수준 0.05보다 작아 독립성을 만족하지 못함
 
 # 결과적으로 fit3모델은 정규성을 따르고
-# Global Stat(선형성), Heteroscedasticity (등분산성) 만족하지 못함
+# Global Stat(선형성), Heteroscedasticity (등분상성) 만족하지 못함
 # 독립성 만족하지 못함
 
 
@@ -184,9 +186,20 @@ durbinWatsonTest(fit4)
 # AIC값은
 AIC(fit3, fit4)
 
-# 결과적으로 fit3보다 fit4가 더 적합한모델
 
 # fit4의 다중회귀식을 만들어서 QTY 예측
-data['pre_QTY'] = (-1188.2848) + (data['ITEM_CNT'] * (23.0316)) + (data['PRICE'] * (0.7479)) + (data['MAXTEMP'] * (13.6824))
-data
+data4 <- data
+data4['pre_QTY'] = round((-1188.2848) + (data4['ITEM_CNT'] * (23.0316)) + (data4['PRICE'] * (0.7479)) + (data4['MAXTEMP'] * (13.6824)), 0)
+data4
 
+data4['Diff'] <- abs(data4['pre_QTY'] - data4['QTY'])
+data4['ACC'] <- abs((data4['QTY'] - data4['Diff'])) / data4['QTY'] * 100
+data4
+
+# 정확도 평균
+ACC_mean <- data4 %>%
+  select(ACC) %>%
+  filter(ACC <= 100) %>%
+  summarise(avarage=mean(ACC))
+ACC_mean
+  
