@@ -4,7 +4,7 @@ install.packages('MASS')
 library(MASS)
 idx<-sample(1:nrow(Boston), size=nrow(Boston)*0.7, replace=F)
 Boston_train<-Boston[idx,]
-Boston_test<-Boston[idx,]
+Boston_test<-Boston[-idx,]
 dim(Boston_train); dim(Boston_test)
 str(Boston_train)
 
