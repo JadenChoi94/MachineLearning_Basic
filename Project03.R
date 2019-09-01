@@ -97,14 +97,20 @@ step(fit1, direction = 'both')
 
 # 4. All possible regression
 library(leaps)
+par(mfrow = c(1, 2))
 subsets1 <- regsubsets(QTY~., data = data,
-                       method = 'seqrep', nbest = 6)  #삭제하는것을 반복
+                       method = 'seqrep', nbest = 6)  
 plot(subsets1)
 
 subsets2 <- regsubsets(QTY~., data = data,
                        method = 'exhaustive', nbest = 6) 
 plot(subsets2)
 
+subsets3 <- regsubsets(QTY~., data = data)$adjr2
+plot(subsets3)
+
+plot(regsubsets(QTY ~ ., data = data, method = 'seqrep', nbest = 6), scale = "adjr2")
+plot(regsubsets(QTY ~ ., data = data, method = 'seqrep', nbest = 6), scale = "bic")
 # 2개 분석결과 HOLIDAY, SALEDAY, RAINDAY 변수가 제거되었다.
 
 ## HOLIDAY, SALEDAY 변수를 뺀 모델을 fit3로 지정
@@ -123,7 +129,7 @@ par(mfrow = c(1, 1))
 qqnorm(fit3$residuals) ; qqline(fit3$residuals)
 shapiro.test(fit3$residuals)
 
-# 유의수준 0.05보다 작아 정규성을 따른다
+# 유의수준 0.05보다 커서 정규성을 따른다
 
 # 2. 등분산성 (homoscedasticity) 
 # 3. 선형성 (linearity) 
